@@ -196,6 +196,64 @@ const std::string DTCPRIBObject::get_displayable_value() const
 	return con->dtcpConfig.toString();
 }
 
+//
+const std::string UnderRegRIBObject::class_name = "UnderlayingRegistration";
+const std::string UnderRegRIBObject::object_name_suffix =
+		"/ipcManagement/underlyingRegistrations/underlyingRegistration";
+
+UnderRegRIBObject::UnderRegRIBObject(IPCProcess * ipc_process,
+	      IFlowAllocatorInstance * fai_)	: IPCPRIBObj(ipc_process, class_name)
+{
+	fai = fai_;
+}
+
+const std::string UnderRegRIBObject::get_displayable_value() const
+{
+	rina::Connection * con = fai->get_flow()->getActiveConnection();
+	return con->dtcpConfig.toString();
+}
+
+void UnderRegRIBObject::read(const rina::cdap_rib::con_handle_t &con,
+	  const std::string& fqn, const std::string& class_,
+	  const rina::cdap_rib::filt_info_t &filt, const int invoke_id,
+	  rina::cdap_rib::obj_info_t &obj_reply, rina::cdap_rib::res_info_t& res)
+{
+
+}
+
+void UnderRegRIBObject::create_cb(const rina::rib::rib_handle_t rib,
+	  const rina::cdap_rib::con_handle_t &con,
+	  const std::string& fqn, const std::string& class_,
+	  const rina::cdap_rib::filt_info_t &filt,
+	  const int invoke_id, const rina::ser_obj_t &obj_req,
+	  rina::cdap_rib::obj_info_t &obj_reply,
+	  rina::cdap_rib::res_info_t& res)
+{
+	UnderRegRIBObject* neighbor;
+
+    (void) con;
+    (void) filt;
+    (void) invoke_id;
+    (void) obj_reply;
+
+    //Set return value
+    res.code_ = rina::cdap_rib::CDAP_SUCCESS;
+
+    if (class_ != UnderRegRIBObject::class_name)
+    {
+            LOG_ERR("Create operation failed: received an invalid class "
+            		"name '%s' during create operation in '%s'",
+                    class_.c_str(), fqn.c_str());
+            res.code_ = rina::cdap_rib::CDAP_INVALID_OBJ_CLASS;
+            return;
+    }
+    rina::Neighbor neigh;
+    // TODO do the decoders/encoders
+    encoders::NeighborEncoder encoder;
+    encoder.decode(obj_req, neigh);
+    createNeighbor(neigh);
+}
+
 //Class Flow Allocator
 FlowAllocator::FlowAllocator() : IFlowAllocator()
 {
