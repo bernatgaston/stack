@@ -1678,11 +1678,16 @@ void IPCPEncoder::encode(const configs::ipcp_t& obj, rina::ser_obj_t& serobj)
         rina::messages::ipcp gpb;
         rina::messages::applicationProcessNamingInfo_t gpb_ap_name;
 
-        gpb_ap_name.set_applicationentityinstance(
-                        obj.process.processInstance.c_str());
-        gpb_ap_name.set_applicationentityname(obj.process.processName.c_str());
+        helpers::get_applicationProcessNamingInfo_t(obj.process, gpb_ap_name);
         gpb.set_allocated_process(&gpb_ap_name);
-        //TODO add name
+
+        for (std::list<std::string>::const_iterator it =
+        		obj.synonimsList.begin();
+        		it != obj.synonimsList.end(); ++it)
+        {
+               std::string *synonim = gpb.add_synonimslist();
+               *synonim = *it;
+        }
 
         //Allocate memory
         serobj.size_ = gpb_ap_name.ByteSize();
@@ -1702,9 +1707,14 @@ void IPCPEncoder::decode(const rina::ser_obj_t& serobj,
         rina::messages::ipcp gpb;
         gpb.ParseFromArray(serobj.message_, serobj.size_);
 
-        des_obj.process.processName = gpb.process().applicationprocessname();
-        des_obj.process.processInstance = gpb.process()
-                        .applicationprocessinstance();
+        helpers::get_ApplicationProcessNamingInformation(gpb.process(),
+        		des_obj.process);
+
+        for (int i = 0; i < gpb.synonimslist_size(); i++)
+        {
+                des_obj.synonimsList.push_back(gpb.synonimslist(i));
+        }
+
 }
 
 

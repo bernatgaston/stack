@@ -141,6 +141,7 @@ typedef struct {
 /// IPCP (read) struct
 typedef struct {
         rina::ApplicationProcessNamingInformation process;
+        std::list<std::string> synonimsList;
 } ipcp_t;
 
 }  //namespace configs

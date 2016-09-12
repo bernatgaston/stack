@@ -10,6 +10,7 @@ option optimize_for = LITE_RUNTIME;
 //Contains the information of an IPCP
 message ipcp{
 	optional applicationProcessNamingInfo_t process = 1;		//Process ID
+	repeated string synonimsList = 2;
 }
 
 // contains flow allocator configuration
